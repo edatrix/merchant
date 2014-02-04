@@ -1,7 +1,12 @@
+gem 'minitest'
 require 'test_helper'
 
 class ProductTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+
+  def test_product_has_status
+    p = Product.new
+    p.status =
+
+  end
+
 end
