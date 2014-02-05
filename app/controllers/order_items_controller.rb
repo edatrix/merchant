@@ -2,27 +2,16 @@ class OrderItemsController < ApplicationController
   before_action :load_order, only: [:create]
   before_action :set_order_item, only: [:show, :edit, :update, :destroy]
 
-  def index
-    @order_items = OrderItem.all
-  end
-
-  def show
-  end
-
-  def new
-    @order_item = OrderItem.new
-  end
-
   def edit
   end
 
   def create
-    @order_item = OrderItem.new(product_id: params[:product_id], order_id: @order.id)
+    @order_item = @order.order_items.new(quantity: 1, product_id: params[:product_id])
 
     respond_to do |format|
       if @order_item.save
         format.html { redirect_to @order, notice: 'Successfully added product to cart.' }
-        format.json { render action: 'show', status: :created, location: @order }
+        format.json { render action: 'show', status: :created, location: @order_item }
       else
         format.html { render action: 'new' }
         format.json { render json: @order_item.errors, status: :unprocessable_entity }
@@ -53,10 +42,9 @@ class OrderItemsController < ApplicationController
   private
 
     def load_order
-      begin
-        @order = Order.find(session[:order_id])
-      rescue ActiveRecord::RecordNotFound
-        @order = Order.create(status: "unsubmitted")
+      @order = Order.find_or_initialize_by_id(session[:order_id], status: "unsubmitted")
+      if @order.new_record?
+        @order.save!
         session[:order_id] = @order.id
       end
     end
